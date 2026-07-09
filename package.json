@@ -1,0 +1,37 @@
+{
+  "name": "lg-webos-magic-touchpad-card",
+  "version": "0.1.0",
+  "description": "Home Assistant Lovelace custom card for LG webOS Magic Remote pointer control.",
+  "type": "module",
+  "files": [
+    "dist",
+    "src",
+    "server",
+    "examples",
+    "hacs.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "esbuild src/lg-webos-magic-touchpad-card.ts --bundle --format=esm --target=es2021 --outfile=dist/lg-webos-magic-touchpad-card.js",
+    "check": "tsc --noEmit",
+    "watch": "npm run build -- --watch"
+  },
+  "keywords": [
+    "home-assistant",
+    "hacs",
+    "lovelace",
+    "lg",
+    "webos",
+    "magic-remote"
+  ],
+  "author": "Francesco Iazzetti",
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "typescript": "^5.5.0"
+  },
+  "dependencies": {
+    "lit": "^3.2.0"
+  }
+}

@@ -1,0 +1,3 @@
+resources:
+  - url: /hacsfiles/lg-webos-magic-touchpad-card/lg-webos-magic-touchpad-card.js
+    type: module

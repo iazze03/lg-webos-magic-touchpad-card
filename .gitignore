@@ -1,0 +1,12 @@
+node_modules/
+.npm-cache/
+dist/*.map
+server/__pycache__/
+*.pyc
+.venv/
+venv/
+client_key.json
+data/
+*.pem
+.DS_Store
+npm-debug.log*
