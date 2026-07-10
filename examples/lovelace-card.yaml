@@ -1,6 +1,5 @@
 type: custom:lg-webos-magic-touchpad-card
 title: TV Salone
-server: https://IP_SERVER:5055
 entity: media_player.tv_salone
 sensitivity: 1.7
 show_keyboard: true

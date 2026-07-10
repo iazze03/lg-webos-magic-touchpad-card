@@ -1,0 +1,29 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "LG webOS Magic Touchpad",
+        "description": "Inserisci solo l'indirizzo IP della TV LG webOS. Il pairing verrà richiesto dalla TV al primo utilizzo.",
+        "data": {
+          "host": "Indirizzo IP TV"
+        }
+      }
+    },
+    "error": {
+      "invalid_host": "Inserisci un indirizzo IP o hostname valido."
+    },
+    "abort": {
+      "already_configured": "Questa TV è già configurata."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opzioni LG webOS Magic Touchpad",
+        "data": {
+          "secure": "Usa connessione webOS secure"
+        }
+      }
+    }
+  }
+}

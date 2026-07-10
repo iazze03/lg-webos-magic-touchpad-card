@@ -1,123 +1,70 @@
-# LG webOS Magic Touchpad Card
+# LG webOS Magic Touchpad
 
-Lovelace custom card per Home Assistant che controlla il puntatore mouse delle TV LG webOS/Magic Remote tramite un piccolo backend locale Python.
+Custom integration Home Assistant installabile via HACS per controllare il puntatore mouse delle TV LG webOS/Magic Remote da Lovelace.
 
-La card non usa iframe: chiama direttamente endpoint REST locali. Il backend parla con la TV tramite `pywebostv`, mantiene il pairing in `client_key.json` e prova a riconnettersi se il socket input cade.
+L'esperienza principale è ora tutta dentro Home Assistant:
 
-## Architettura
+- installazione HACS come integrazione;
+- configurazione guidata da UI;
+- richiesto solo l'indirizzo IP della TV;
+- backend locale eseguito da Home Assistant;
+- frontend Lovelace incluso nell'integrazione;
+- nessun server esterno, iframe, CORS o problema mixed content.
 
-- `dist/lg-webos-magic-touchpad-card.js`: custom card installabile via HACS.
-- `src/lg-webos-magic-touchpad-card.ts`: sorgente LitElement.
-- `server/lg_touchpad_server.py`: backend REST locale.
-- `Dockerfile` e `docker-compose.example.yml`: base per container.
+## Funzioni
 
-## Prerequisiti
+- Movimento puntatore Magic Remote.
+- Tap/click.
+- Scroll con due dita o rotella mouse.
+- Inserimento testo.
+- Enter, Back, Delete.
+- Home, Volume +, Volume -, Mute.
+- Stato connected/disconnected.
+- Riconnessione automatica se la TV o il socket input cadono.
+- Pairing LG webOS con salvataggio chiave in `.storage`.
 
-- Home Assistant con Lovelace.
-- TV LG webOS raggiungibile dalla rete locale.
-- Python 3.11+ per il backend.
-- Un host locale sempre acceso: Mac, VM, mini PC, TrueNAS, Docker host o simile.
-- Se Home Assistant è servito in HTTPS, anche il backend deve essere raggiungibile in HTTPS oppure tramite reverse proxy HTTPS.
+## Installazione via HACS
 
-Il backend non richiede password o token Home Assistant.
+1. Apri HACS in Home Assistant.
+2. Vai in `Custom repositories`.
+3. Aggiungi:
 
-## Installazione Backend
-
-```bash
-cd server
-python3.11 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+```text
+iazze03/lg-webos-magic-touchpad-card
 ```
 
-Avvio HTTP locale:
+4. Categoria: `Integration`.
+5. Installa `LG webOS Magic Touchpad`.
+6. Riavvia Home Assistant.
 
-```bash
-export LG_TV_IP=192.168.1.50
-export LG_KEYFILE=./client_key.json
-export LG_SERVER_HOST=0.0.0.0
-export LG_SERVER_PORT=5055
-python lg_touchpad_server.py
+## Configurazione Guidata
+
+1. Vai in `Impostazioni` → `Dispositivi e servizi`.
+2. Premi `Aggiungi integrazione`.
+3. Cerca `LG webOS Magic Touchpad`.
+4. Inserisci solo l'indirizzo IP della TV.
+5. Salva.
+
+Alla prima connessione la TV può mostrare una richiesta di pairing. Accettala con il telecomando LG. La chiave viene salvata da Home Assistant in:
+
+```text
+config/.storage/lg_webos_magic_touchpad/<entry_id>.json
 ```
 
-Alla prima connessione la TV mostrerà una richiesta di pairing. Accettala con il telecomando. La chiave verrà salvata nel file indicato da `LG_KEYFILE`.
+## Card Lovelace
 
-Test rapido:
-
-```bash
-curl http://IP_SERVER:5055/health
-curl -X POST http://IP_SERVER:5055/move -H 'content-type: application/json' -d '{"dx":40,"dy":0}'
-curl -X POST http://IP_SERVER:5055/click
-```
-
-## Variabili Ambiente Backend
-
-| Variabile | Default | Descrizione |
-| --- | --- | --- |
-| `LG_TV_IP` | obbligatoria | IP della TV LG webOS. |
-| `LG_KEYFILE` | `client_key.json` | Percorso file pairing. |
-| `LG_SERVER_HOST` | `0.0.0.0` | Host Flask. |
-| `LG_SERVER_PORT` | `5055` | Porta REST. |
-| `LG_SSL_CERT` | vuota | Certificato PEM per HTTPS locale. |
-| `LG_SSL_KEY` | vuota | Chiave PEM per HTTPS locale. |
-| `LG_SECURE` | `false` | Prova connessione secure se supportata da `pywebostv`. |
-| `LG_LOG_LEVEL` | `INFO` | Livello log. |
-
-## HTTPS Locale e Mixed Content
-
-Se Home Assistant è aperto in HTTPS, il browser blocca richieste verso `http://...` per mixed content. Usa una di queste opzioni:
-
-- avvia il backend con HTTPS locale;
-- esponi il backend dietro Nginx/Caddy/Traefik con certificato valido;
-- usa un reverse proxy/add-on già presente nella tua rete.
-
-Certificato autofirmato per test:
-
-```bash
-openssl req -x509 -newkey rsa:4096 -nodes \
-  -keyout key.pem \
-  -out cert.pem \
-  -sha256 \
-  -days 365 \
-  -subj "/CN=lg-touchpad.local"
-
-export LG_SSL_CERT=$PWD/cert.pem
-export LG_SSL_KEY=$PWD/key.pem
-python server/lg_touchpad_server.py
-```
-
-Apri `https://IP_SERVER:5055/health` dal browser e accetta il certificato prima di usare la card.
-
-## Installazione Card via HACS
-
-1. Pubblica questo repository su GitHub.
-2. In Home Assistant apri HACS.
-3. Vai in `Custom repositories`.
-4. Inserisci l'URL del repository GitHub.
-5. Categoria: `Lovelace`.
-6. Installa `LG webOS Magic Touchpad Card`.
-7. Riavvia o ricarica le risorse Lovelace se richiesto.
-
-Risorsa manuale, se non usi HACS:
-
-```yaml
-url: /local/lg-webos-magic-touchpad-card.js
-type: module
-```
-
-Con HACS il percorso tipico è:
-
-```yaml
-url: /hacsfiles/lg-webos-magic-touchpad-card/lg-webos-magic-touchpad-card.js
-type: module
-```
-
-## Configurazione Lovelace
+Config minima:
 
 ```yaml
 type: custom:lg-webos-magic-touchpad-card
 title: TV Salone
-server: https://IP_SERVER:5055
+```
+
+Config completa:
+
+```yaml
+type: custom:lg-webos-magic-touchpad-card
+title: TV Salone
 entity: media_player.tv_salone
 sensitivity: 1.7
 show_keyboard: true
@@ -125,19 +72,65 @@ show_volume: true
 show_nav_buttons: true
 ```
 
+Se configuri più TV, indica l'`entry_id` dell'integrazione nella card:
+
+```yaml
+type: custom:lg-webos-magic-touchpad-card
+title: TV Camera
+entry_id: 01JZEXAMPLEENTRYID
+```
+
+Con una sola TV configurata non serve `entry_id`.
+
+## Risorsa Frontend
+
+L'integrazione prova a registrare automaticamente la risorsa Lovelace:
+
+```text
+/lg_webos_magic_touchpad/lg-webos-magic-touchpad-card.js
+```
+
+Se la card non appare nel selettore, aggiungila manualmente in `Impostazioni` → `Dashboard` → menu `Risorse`:
+
+```yaml
+url: /lg_webos_magic_touchpad/lg-webos-magic-touchpad-card.js
+type: module
+```
+
 ## Uso
 
-- Trascina con un dito o mouse sull'area touchpad per muovere il puntatore.
+- Trascina sull'area touchpad per muovere il puntatore.
 - Tap sull'area touchpad per click.
 - Due dita su mobile per scroll.
 - Rotella mouse per scroll.
 - Il campo testo invia testo alla TV.
-- Backspace sulla tastiera locale chiama `/delete`.
-- Enter sulla tastiera locale invia il testo presente e poi chiama `/enter`.
+- Backspace della tastiera locale chiama Delete sulla TV.
+- Enter invia il testo presente e poi chiama Enter.
 
-## Endpoint REST
+## API Interna Home Assistant
 
-Tutte le risposte seguono:
+La card usa endpoint autenticati di Home Assistant:
+
+- `GET /api/lg_webos_magic_touchpad/health`
+- `POST /api/lg_webos_magic_touchpad/move`
+- `POST /api/lg_webos_magic_touchpad/click`
+- `POST /api/lg_webos_magic_touchpad/type`
+- `POST /api/lg_webos_magic_touchpad/enter`
+- `POST /api/lg_webos_magic_touchpad/back`
+- `POST /api/lg_webos_magic_touchpad/delete`
+- `POST /api/lg_webos_magic_touchpad/scroll`
+- `POST /api/lg_webos_magic_touchpad/home`
+- `POST /api/lg_webos_magic_touchpad/volume_up`
+- `POST /api/lg_webos_magic_touchpad/volume_down`
+- `POST /api/lg_webos_magic_touchpad/mute`
+
+Con più TV puoi usare:
+
+```text
+/api/lg_webos_magic_touchpad/<entry_id>/<command>
+```
+
+Risposte:
 
 ```json
 { "ok": true }
@@ -149,42 +142,20 @@ oppure:
 { "ok": false, "error": "..." }
 ```
 
-Endpoint:
+## Opzione Secure
 
-- `GET /health`
-- `POST /move` con `{ "dx": number, "dy": number }`
-- `POST /click`
-- `POST /type` con `{ "text": string }`
-- `POST /enter`
-- `POST /back`
-- `POST /delete`
-- `POST /scroll` con `{ "dy": number }`
-- `POST /home`
-- `POST /volume_up`
-- `POST /volume_down`
-- `POST /mute`
+Alcune TV LG webOS usano connessione websocket secure, altre no. L'integrazione usa di default la modalità non secure perché è quella più comune con `pywebostv`.
 
-`/health` resta leggero: se la TV è spenta indica `connected: false` e avvia un tentativo di riconnessione in background.
+Per cambiarla:
 
-## Docker
+1. Apri l'integrazione in `Dispositivi e servizi`.
+2. Premi `Configura`.
+3. Attiva `Usa connessione webOS secure`.
+4. Salva.
 
-Copia il compose di esempio e modifica l'IP:
+## Sviluppo
 
-```bash
-cp docker-compose.example.yml docker-compose.yml
-docker compose up -d --build
-```
-
-Con `network_mode: host` il container vede direttamente la rete locale, utile per TV LG e pairing.
-
-Per HTTPS in Docker, monta `cert.pem` e `key.pem` nella cartella `data` e abilita:
-
-```yaml
-LG_SSL_CERT: "/data/cert.pem"
-LG_SSL_KEY: "/data/key.pem"
-```
-
-## Sviluppo Frontend
+Frontend:
 
 ```bash
 npm install
@@ -192,52 +163,71 @@ npm run check
 npm run build
 ```
 
-Il file da rilasciare per HACS è:
-
-```text
-dist/lg-webos-magic-touchpad-card.js
-```
-
-## Pubblicazione GitHub
+Backend Home Assistant:
 
 ```bash
-git init
-git add .
-git commit -m "Initial release"
-git branch -M main
-git remote add origin https://github.com/TUO_UTENTE/lg-webos-magic-touchpad-card.git
-git push -u origin main
-git tag v0.1.0
-git push origin v0.1.0
+python3 -m py_compile custom_components/lg_webos_magic_touchpad/*.py
 ```
 
-HACS può installare il repository anche senza release, ma un tag versionato rende più puliti aggiornamenti e rollback.
+Il build genera:
+
+- `dist/lg-webos-magic-touchpad-card.js`
+- `custom_components/lg_webos_magic_touchpad/www/lg-webos-magic-touchpad-card.js`
+
+## Server Standalone Legacy
+
+La cartella `server/` resta disponibile come modalità avanzata o fallback per test esterni a Home Assistant. Per l'uso normale non serve più.
+
+```bash
+cd server
+python3.11 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+export LG_TV_IP=192.168.1.50
+python lg_touchpad_server.py
+```
+
+## Docker Legacy
+
+Il `Dockerfile` e `docker-compose.example.yml` restano per chi vuole ancora usare il backend separato. Non sono necessari quando installi l'integrazione in Home Assistant via HACS.
+
+## Pubblicazione Release
+
+```bash
+npm run build
+git add .
+git commit -m "Release v0.2.0"
+git tag v0.2.0
+git push origin main
+git push origin v0.2.0
+```
 
 ## Troubleshooting
 
-### La card mostra disconnected
+### La TV resta disconnected
 
-- Controlla `server: https://IP_SERVER:5055`.
-- Apri `/health` dal browser dello stesso dispositivo.
-- Se usi certificato autofirmato, accettalo nel browser.
-- Verifica che `LG_TV_IP` sia corretto.
-- Controlla che TV e host backend siano nella stessa rete.
+- Verifica che la TV sia accesa.
+- Controlla che Home Assistant e TV siano nella stessa rete.
+- Verifica l'IP inserito nella configurazione guidata.
+- Guarda i log di Home Assistant filtrando `lg_webos_magic_touchpad`.
 
-### Home Assistant blocca le chiamate
+### Non vedo la richiesta pairing sulla TV
 
-Quasi sempre è mixed content: Home Assistant è in HTTPS e il backend è in HTTP. Usa HTTPS locale o reverse proxy.
+- Riavvia Home Assistant.
+- Assicurati che la TV non sia in standby profondo.
+- Rimuovi e riaggiungi l'integrazione.
+- Controlla che la TV permetta il controllo remoto/app mobile.
 
-### Pairing non appare sulla TV
+### La card non appare
 
-- Cancella `client_key.json`.
-- Riavvia il backend.
-- Assicurati che la TV sia accesa e non in standby profondo.
-- Controlla eventuali impostazioni LG per app mobile/remote control.
+- Svuota la cache del browser.
+- Controlla che la risorsa Lovelace sia registrata.
+- Aggiungi manualmente:
 
-### Movimento o scroll non funzionano su alcuni modelli
+```text
+/lg_webos_magic_touchpad/lg-webos-magic-touchpad-card.js
+```
 
-`pywebostv` e webOS variano tra modelli. Il backend usa `InputControl.scroll` quando disponibile e un fallback sul pointer socket quando supportato. Se il modello non accetta scroll, gli altri comandi possono continuare a funzionare.
+### Ho più TV configurate
 
-### Volume o Home non funzionano
-
-Alcuni firmware espongono controlli diversi. Verifica i log backend; i comandi pointer restano indipendenti dai controlli media/app.
+Con più TV la card deve sapere quale voce usare. Aggiungi `entry_id` nella configurazione YAML della card.

@@ -5,7 +5,8 @@ type HealthState = "checking" | "connected" | "disconnected";
 interface CardConfig {
   type: string;
   title?: string;
-  server: string;
+  server?: string;
+  entry_id?: string;
   entity?: string;
   sensitivity?: number;
   show_keyboard?: boolean;
@@ -22,7 +23,9 @@ class LgWebosMagicTouchpadCard extends LitElement {
     _text: { state: true },
   };
 
-  hass: unknown;
+  hass?: {
+    fetchWithAuth?: (path: string, init?: RequestInit) => Promise<Response>;
+  };
   private _config!: CardConfig;
   private _health: HealthState = "checking";
   private _error = "";
@@ -179,9 +182,6 @@ class LgWebosMagicTouchpadCard extends LitElement {
   `;
 
   setConfig(config: CardConfig) {
-    if (!config.server) {
-      throw new Error("server is required");
-    }
     this._config = {
       title: "LG webOS Magic Touchpad",
       sensitivity: 1,
@@ -189,7 +189,7 @@ class LgWebosMagicTouchpadCard extends LitElement {
       show_volume: true,
       show_nav_buttons: true,
       ...config,
-      server: config.server.replace(/\/$/, ""),
+      server: config.server?.replace(/\/$/, ""),
     };
     this._checkHealth();
   }
@@ -401,11 +401,13 @@ class LgWebosMagicTouchpadCard extends LitElement {
   }
 
   private async _checkHealth() {
-    if (!this._config?.server) return;
+    if (!this._config) return;
     try {
-      const response = await fetch(`${this._config.server}/health`, { cache: "no-store" });
+      const response = await this._fetch(`${this._apiBase()}/health`, {
+        cache: "no-store",
+      });
       const data = await response.json();
-      this._health = data.connected ? "connected" : "disconnected";
+      this._health = data.connected ? "connected" : data.connecting ? "checking" : "disconnected";
       this._error = data.error && !data.connected ? data.error : "";
     } catch (error) {
       this._health = "disconnected";
@@ -415,7 +417,7 @@ class LgWebosMagicTouchpadCard extends LitElement {
 
   private async _command(path: string, body?: Record<string, unknown>, notify = true): Promise<boolean> {
     try {
-      const response = await fetch(`${this._config.server}/${path}`, {
+      const response = await this._fetch(`${this._apiBase()}/${path}`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body ?? {}),
@@ -432,6 +434,19 @@ class LgWebosMagicTouchpadCard extends LitElement {
       this._setError(error, notify);
       return false;
     }
+  }
+
+  private _apiBase(): string {
+    if (this._config.server) return this._config.server;
+    const entry = this._config.entry_id ? `/${this._config.entry_id}` : "";
+    return `/api/lg_webos_magic_touchpad${entry}`;
+  }
+
+  private _fetch(path: string, init?: RequestInit): Promise<Response> {
+    if (path.startsWith("/api/") && this.hass?.fetchWithAuth) {
+      return this.hass.fetchWithAuth(path, init);
+    }
+    return fetch(path, init);
   }
 
   private _setError(error: unknown, notify = false) {
@@ -468,5 +483,5 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: "lg-webos-magic-touchpad-card",
   name: "LG webOS Magic Touchpad Card",
-  description: "Control LG webOS Magic Remote pointer from Home Assistant.",
+  description: "Control LG webOS Magic Remote pointer through the Home Assistant integration.",
 });

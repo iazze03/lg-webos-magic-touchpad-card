@@ -1,5 +1,6 @@
 {
-  "name": "LG webOS Magic Touchpad Card",
+  "name": "LG webOS Magic Touchpad",
   "render_readme": true,
-  "filename": "lg-webos-magic-touchpad-card.js"
+  "domains": ["lg_webos_magic_touchpad"],
+  "homeassistant": "2024.6.0"
 }
