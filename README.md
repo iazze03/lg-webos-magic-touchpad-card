@@ -84,13 +84,13 @@ Con una sola TV configurata non serve `entry_id`.
 
 ## Risorsa Frontend
 
-L'integrazione prova a registrare automaticamente la risorsa Lovelace:
+L'integrazione registra automaticamente il modulo frontend della card:
 
 ```text
 /lg_webos_magic_touchpad/lg-webos-magic-touchpad-card.js
 ```
 
-Se la card non appare nel selettore, aggiungila manualmente in `Impostazioni` → `Dashboard` → menu `Risorse`:
+Se dopo un aggiornamento la card mostra ancora `Custom element doesn't exist`, riavvia Home Assistant e svuota la cache del browser. Come workaround manuale puoi aggiungere la risorsa in `Impostazioni` → `Dashboard` → menu `Risorse`:
 
 ```yaml
 url: /lg_webos_magic_touchpad/lg-webos-magic-touchpad-card.js

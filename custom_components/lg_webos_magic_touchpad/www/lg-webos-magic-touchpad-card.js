@@ -967,13 +967,17 @@ LgWebosMagicTouchpadCard.styles = i`
       }
     }
   `;
-customElements.define("lg-webos-magic-touchpad-card", LgWebosMagicTouchpadCard);
+if (!customElements.get("lg-webos-magic-touchpad-card")) {
+  customElements.define("lg-webos-magic-touchpad-card", LgWebosMagicTouchpadCard);
+}
 window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "lg-webos-magic-touchpad-card",
-  name: "LG webOS Magic Touchpad Card",
-  description: "Control LG webOS Magic Remote pointer through the Home Assistant integration."
-});
+if (!window.customCards.some((card) => card.type === "lg-webos-magic-touchpad-card")) {
+  window.customCards.push({
+    type: "lg-webos-magic-touchpad-card",
+    name: "LG webOS Magic Touchpad Card",
+    description: "Control LG webOS Magic Remote pointer through the Home Assistant integration."
+  });
+}
 /*! Bundled license information:
 
 @lit/reactive-element/css-tag.js:

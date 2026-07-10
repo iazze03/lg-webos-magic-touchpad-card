@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
+from homeassistant.components import frontend
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST
@@ -21,6 +22,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up static frontend and API views."""
     hass.data.setdefault(DOMAIN, {})
     await _async_register_static_card(hass)
+    _register_frontend_module(hass)
     async_register_views(hass)
     await _async_register_lovelace_resource(hass)
     return True
@@ -60,6 +62,15 @@ async def _async_register_static_card(hass: HomeAssistant) -> None:
         )
     except RuntimeError:
         _LOGGER.debug("LG webOS Magic Touchpad static path already registered")
+
+
+def _register_frontend_module(hass: HomeAssistant) -> None:
+    """Load the bundled card in the Home Assistant frontend."""
+    try:
+        frontend.add_extra_js_url(hass, CARD_URL)
+        _LOGGER.debug("Registered LG webOS Magic Touchpad frontend module %s", CARD_URL)
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("Could not register frontend module %s: %s", CARD_URL, exc)
 
 
 async def _async_register_lovelace_resource(hass: HomeAssistant) -> None:
