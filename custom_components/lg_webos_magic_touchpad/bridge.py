@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from pywebostv.connection import WebOSClient
-from pywebostv.controls import ApplicationControl, InputControl, MediaControl
+from pywebostv.controls import InputControl, MediaControl
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,7 +25,6 @@ class LGWebOSMagicTouchpadBridge:
         self._client: WebOSClient | None = None
         self._input: InputControl | None = None
         self._media: MediaControl | None = None
-        self._app: ApplicationControl | None = None
         self._connected = False
         self._connecting = False
         self._last_error: str | None = None
@@ -71,7 +70,6 @@ class LGWebOSMagicTouchpadBridge:
             self._connecting = False
             self._input = None
             self._media = None
-            self._app = None
             self._client = None
 
     def ensure_connected(self, force: bool = False) -> bool:
@@ -98,7 +96,6 @@ class LGWebOSMagicTouchpadBridge:
                 self._client = client
                 self._input = input_control
                 self._media = MediaControl(client)
-                self._app = ApplicationControl(client)
                 self._connected = True
                 self._connecting = False
                 self._last_error = None
@@ -138,7 +135,6 @@ class LGWebOSMagicTouchpadBridge:
         self._last_error = str(exc)
         self._input = None
         self._media = None
-        self._app = None
         self._client = None
 
     def run(self, action: Callable[[], Any]) -> dict[str, Any]:
@@ -198,11 +194,5 @@ class LGWebOSMagicTouchpadBridge:
         return self.run(action)
 
     def home(self) -> dict[str, Any]:
-        """Open the webOS home app."""
-
-        def action() -> None:
-            if self._app is None:
-                raise RuntimeError("Application control is not connected")
-            self._app.launch("com.webos.app.home")
-
-        return self.run(action)
+        """Send the Magic Remote HOME button."""
+        return self.input_command("home")

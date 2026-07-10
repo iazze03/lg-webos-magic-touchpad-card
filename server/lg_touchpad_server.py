@@ -13,7 +13,7 @@ from typing import Any, Callable
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from pywebostv.connection import WebOSClient
-from pywebostv.controls import ApplicationControl, InputControl, MediaControl
+from pywebostv.controls import InputControl, MediaControl
 
 
 LOG_LEVEL = os.getenv("LG_LOG_LEVEL", "INFO").upper()
@@ -43,7 +43,6 @@ class LGTouchpadBridge:
         self._client: WebOSClient | None = None
         self._input: InputControl | None = None
         self._media: MediaControl | None = None
-        self._app: ApplicationControl | None = None
         self._connected = False
         self._connecting = False
         self._last_error: str | None = None
@@ -121,7 +120,6 @@ class LGTouchpadBridge:
                 self._input = InputControl(self._client)
                 self._input.connect_input()
                 self._media = MediaControl(self._client)
-                self._app = ApplicationControl(self._client)
                 self._connected = True
                 self._last_error = None
                 LOGGER.info("Connected to LG TV and pointer input socket is ready.")
@@ -164,7 +162,6 @@ class LGTouchpadBridge:
         self._last_error = str(exc)
         self._input = None
         self._media = None
-        self._app = None
 
     def run(self, action: Callable[[], Any]) -> dict[str, Any]:
         with self._lock:
@@ -218,12 +215,7 @@ class LGTouchpadBridge:
         return self.run(action)
 
     def home(self) -> dict[str, Any]:
-        def action() -> None:
-            if self._app is None:
-                raise RuntimeError("Application control is not connected")
-            self._app.launch("com.webos.app.home")
-
-        return self.run(action)
+        return self.input_command("home")
 
 
 app = Flask(__name__)
