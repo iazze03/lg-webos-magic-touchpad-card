@@ -53,6 +53,8 @@ config/.storage/lg_webos_magic_touchpad/<entry_id>.json
 
 ## Card Lovelace
 
+### Touchpad Card
+
 Config minima:
 
 ```yaml
@@ -82,19 +84,77 @@ entry_id: 01JZEXAMPLEENTRYID
 
 Con una sola TV configurata non serve `entry_id`.
 
+### Magic Remote Card
+
+La seconda card inclusa nell'integrazione riproduce un telecomando LG Magic Remote completo:
+
+```yaml
+type: custom:lg-webos-magic-remote-card
+title: TV Salone
+entity: media_player.tv_salone
+mode: keypad
+scale: 1
+show_sources: true
+show_color_buttons: true
+show_media_buttons: false
+```
+
+Modalità con touchpad superiore, simile al secondo telecomando dell'immagine:
+
+```yaml
+type: custom:lg-webos-magic-remote-card
+title: TV Salone
+mode: touchpad
+sensitivity: 1.3
+```
+
+Sorgenti, app e canali preferiti configurabili:
+
+```yaml
+type: custom:lg-webos-magic-remote-card
+title: TV Salone
+sources:
+  - name: Netflix
+    label: NETFLIX
+    type: app
+  - name: Prime Video
+    label: prime video
+    type: app
+  - name: YouTube
+    label: YouTube
+    type: app
+  - name: HDMI 1
+    label: HDMI 1
+    type: source
+channels:
+  - name: Rai 1
+    label: Rai 1
+    type: channel
+    value: "1"
+  - name: Rai 2
+    label: Rai 2
+    type: channel
+    value: "2"
+```
+
+Per le app, `name` o `value` deve corrispondere al titolo o all'id dell'app webOS installata sulla TV. Per gli ingressi HDMI, `name` o `value` deve corrispondere a id o label della sorgente webOS.
+
 ## Risorsa Frontend
 
 L'integrazione registra automaticamente il modulo frontend della card:
 
 ```text
 /lg_webos_magic_touchpad/lg-webos-magic-touchpad-card.js
+/lg_webos_magic_touchpad/lg-webos-magic-remote-card.js
 ```
 
 Se dopo un aggiornamento la card mostra ancora `Custom element doesn't exist`, riavvia Home Assistant e svuota la cache del browser. Come workaround manuale puoi aggiungere la risorsa in `Impostazioni` → `Dashboard` → menu `Risorse`:
 
 ```yaml
-url: /lg_webos_magic_touchpad/lg-webos-magic-touchpad-card.js
-type: module
+- url: /lg_webos_magic_touchpad/lg-webos-magic-touchpad-card.js
+  type: module
+- url: /lg_webos_magic_touchpad/lg-webos-magic-remote-card.js
+  type: module
 ```
 
 ## Uso
@@ -123,6 +183,23 @@ La card usa endpoint autenticati di Home Assistant:
 - `POST /api/lg_webos_magic_touchpad/volume_up`
 - `POST /api/lg_webos_magic_touchpad/volume_down`
 - `POST /api/lg_webos_magic_touchpad/mute`
+- `POST /api/lg_webos_magic_touchpad/power_off`
+- `POST /api/lg_webos_magic_touchpad/up`
+- `POST /api/lg_webos_magic_touchpad/down`
+- `POST /api/lg_webos_magic_touchpad/left`
+- `POST /api/lg_webos_magic_touchpad/right`
+- `POST /api/lg_webos_magic_touchpad/ok`
+- `POST /api/lg_webos_magic_touchpad/menu`
+- `POST /api/lg_webos_magic_touchpad/info`
+- `POST /api/lg_webos_magic_touchpad/channel_up`
+- `POST /api/lg_webos_magic_touchpad/channel_down`
+- `POST /api/lg_webos_magic_touchpad/red`
+- `POST /api/lg_webos_magic_touchpad/green`
+- `POST /api/lg_webos_magic_touchpad/yellow`
+- `POST /api/lg_webos_magic_touchpad/blue`
+- `POST /api/lg_webos_magic_touchpad/launch` con `{ "app": "Netflix" }`
+- `POST /api/lg_webos_magic_touchpad/source` con `{ "source": "HDMI 1" }`
+- `POST /api/lg_webos_magic_touchpad/channel` con `{ "number": "1" }`
 
 Con più TV puoi usare:
 
@@ -172,7 +249,9 @@ python3 -m py_compile custom_components/lg_webos_magic_touchpad/*.py
 Il build genera:
 
 - `dist/lg-webos-magic-touchpad-card.js`
+- `dist/lg-webos-magic-remote-card.js`
 - `custom_components/lg_webos_magic_touchpad/www/lg-webos-magic-touchpad-card.js`
+- `custom_components/lg_webos_magic_touchpad/www/lg-webos-magic-remote-card.js`
 
 ## Server Standalone Legacy
 

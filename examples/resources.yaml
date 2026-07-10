@@ -1,3 +1,5 @@
 resources:
   - url: /lg_webos_magic_touchpad/lg-webos-magic-touchpad-card.js
     type: module
+  - url: /lg_webos_magic_touchpad/lg-webos-magic-remote-card.js
+    type: module

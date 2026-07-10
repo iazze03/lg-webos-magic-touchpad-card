@@ -13,7 +13,15 @@ from homeassistant.core import HomeAssistant
 
 from .api import async_register_views
 from .bridge import LGWebOSMagicTouchpadBridge
-from .const import CARD_FILENAME, CARD_URL, CONF_SECURE, DEFAULT_SECURE, DOMAIN
+from .const import (
+    CONF_SECURE,
+    DEFAULT_SECURE,
+    DOMAIN,
+    REMOTE_CARD_FILENAME,
+    REMOTE_CARD_URL,
+    TOUCHPAD_CARD_FILENAME,
+    TOUCHPAD_CARD_URL,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -55,22 +63,30 @@ async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> Non
 
 
 async def _async_register_static_card(hass: HomeAssistant) -> None:
-    card_path = Path(__file__).parent / "www" / CARD_FILENAME
+    base_path = Path(__file__).parent / "www"
     try:
         await hass.http.async_register_static_paths(
-            [StaticPathConfig(CARD_URL, str(card_path), True)]
+            [
+                StaticPathConfig(
+                    TOUCHPAD_CARD_URL, str(base_path / TOUCHPAD_CARD_FILENAME), True
+                ),
+                StaticPathConfig(
+                    REMOTE_CARD_URL, str(base_path / REMOTE_CARD_FILENAME), True
+                ),
+            ]
         )
     except RuntimeError:
-        _LOGGER.debug("LG webOS Magic Touchpad static path already registered")
+        _LOGGER.debug("LG webOS Magic Touchpad static paths already registered")
 
 
 def _register_frontend_module(hass: HomeAssistant) -> None:
     """Load the bundled card in the Home Assistant frontend."""
-    try:
-        frontend.add_extra_js_url(hass, CARD_URL)
-        _LOGGER.debug("Registered LG webOS Magic Touchpad frontend module %s", CARD_URL)
-    except Exception as exc:  # noqa: BLE001
-        _LOGGER.debug("Could not register frontend module %s: %s", CARD_URL, exc)
+    for url in (TOUCHPAD_CARD_URL, REMOTE_CARD_URL):
+        try:
+            frontend.add_extra_js_url(hass, url)
+            _LOGGER.debug("Registered LG webOS Magic Touchpad frontend module %s", url)
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("Could not register frontend module %s: %s", url, exc)
 
 
 async def _async_register_lovelace_resource(hass: HomeAssistant) -> None:
@@ -88,9 +104,11 @@ async def _async_register_lovelace_resource(hass: HomeAssistant) -> None:
     try:
         resources = lovelace.resources
         current = await resources.async_get_info()
-        if any(item.get("url") == CARD_URL for item in current.get("resources", [])):
-            return
-        await resources.async_create_item({"res_type": "module", "url": CARD_URL})
-        _LOGGER.info("Registered Lovelace resource %s", CARD_URL)
+        existing = {item.get("url") for item in current.get("resources", [])}
+        for url in (TOUCHPAD_CARD_URL, REMOTE_CARD_URL):
+            if url in existing:
+                continue
+            await resources.async_create_item({"res_type": "module", "url": url})
+            _LOGGER.info("Registered Lovelace resource %s", url)
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("Could not auto-register Lovelace resource: %s", exc)

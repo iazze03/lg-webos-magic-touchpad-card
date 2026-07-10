@@ -1,11 +1,12 @@
 {
   "name": "lg-webos-magic-touchpad-card",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Home Assistant Lovelace custom card for LG webOS Magic Remote pointer control.",
   "type": "module",
   "files": [
     "dist",
     "src",
+    "custom_components",
     "server",
     "examples",
     "hacs.json",
@@ -13,9 +14,9 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "npm run build:dist && npm run build:integration",
-    "build:dist": "esbuild src/lg-webos-magic-touchpad-card.ts --bundle --format=esm --target=es2021 --outfile=dist/lg-webos-magic-touchpad-card.js",
-    "build:integration": "esbuild src/lg-webos-magic-touchpad-card.ts --bundle --format=esm --target=es2021 --outfile=custom_components/lg_webos_magic_touchpad/www/lg-webos-magic-touchpad-card.js",
+    "build": "npm run build:touchpad && npm run build:remote",
+    "build:touchpad": "esbuild src/lg-webos-magic-touchpad-card.ts --bundle --format=esm --target=es2021 --outfile=dist/lg-webos-magic-touchpad-card.js && esbuild src/lg-webos-magic-touchpad-card.ts --bundle --format=esm --target=es2021 --outfile=custom_components/lg_webos_magic_touchpad/www/lg-webos-magic-touchpad-card.js",
+    "build:remote": "esbuild src/lg-webos-magic-remote-card.ts --bundle --format=esm --target=es2021 --outfile=dist/lg-webos-magic-remote-card.js && esbuild src/lg-webos-magic-remote-card.ts --bundle --format=esm --target=es2021 --outfile=custom_components/lg_webos_magic_touchpad/www/lg-webos-magic-remote-card.js",
     "check": "tsc --noEmit",
     "watch": "npm run build -- --watch"
   },

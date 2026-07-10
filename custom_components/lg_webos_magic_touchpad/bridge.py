@@ -9,7 +9,14 @@ from pathlib import Path
 from typing import Any, Callable
 
 from pywebostv.connection import WebOSClient
-from pywebostv.controls import InputControl, MediaControl
+from pywebostv.controls import (
+    ApplicationControl,
+    InputControl,
+    MediaControl,
+    SourceControl,
+    SystemControl,
+    TvControl,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,6 +32,10 @@ class LGWebOSMagicTouchpadBridge:
         self._client: WebOSClient | None = None
         self._input: InputControl | None = None
         self._media: MediaControl | None = None
+        self._tv: TvControl | None = None
+        self._system: SystemControl | None = None
+        self._app: ApplicationControl | None = None
+        self._source: SourceControl | None = None
         self._connected = False
         self._connecting = False
         self._last_error: str | None = None
@@ -70,6 +81,10 @@ class LGWebOSMagicTouchpadBridge:
             self._connecting = False
             self._input = None
             self._media = None
+            self._tv = None
+            self._system = None
+            self._app = None
+            self._source = None
             self._client = None
 
     def ensure_connected(self, force: bool = False) -> bool:
@@ -96,6 +111,10 @@ class LGWebOSMagicTouchpadBridge:
                 self._client = client
                 self._input = input_control
                 self._media = MediaControl(client)
+                self._tv = TvControl(client)
+                self._system = SystemControl(client)
+                self._app = ApplicationControl(client)
+                self._source = SourceControl(client)
                 self._connected = True
                 self._connecting = False
                 self._last_error = None
@@ -135,6 +154,10 @@ class LGWebOSMagicTouchpadBridge:
         self._last_error = str(exc)
         self._input = None
         self._media = None
+        self._tv = None
+        self._system = None
+        self._app = None
+        self._source = None
         self._client = None
 
     def run(self, action: Callable[[], Any]) -> dict[str, Any]:
@@ -190,6 +213,85 @@ class LGWebOSMagicTouchpadBridge:
             if self._media is None:
                 raise RuntimeError("Media control is not connected")
             getattr(self._media, method_name)(*args)
+
+        return self.run(action)
+
+    def tv_command(self, method_name: str, *args: Any) -> dict[str, Any]:
+        """Run a TvControl command."""
+
+        def action() -> None:
+            if self._tv is None:
+                raise RuntimeError("TV control is not connected")
+            getattr(self._tv, method_name)(*args)
+
+        return self.run(action)
+
+    def system_command(self, method_name: str, *args: Any) -> dict[str, Any]:
+        """Run a SystemControl command."""
+
+        def action() -> None:
+            if self._system is None:
+                raise RuntimeError("System control is not connected")
+            getattr(self._system, method_name)(*args)
+
+        return self.run(action)
+
+    def digit_channel(self, number: str) -> dict[str, Any]:
+        """Enter a TV channel number using remote number buttons."""
+
+        def action() -> None:
+            if self._input is None:
+                raise RuntimeError("Input socket is not connected")
+            for digit in str(number):
+                if digit.isdigit():
+                    getattr(self._input, f"num_{digit}")()
+            self._input.ok()
+
+        return self.run(action)
+
+    def launch_app(self, app: str) -> dict[str, Any]:
+        """Launch an app by id or title."""
+        wanted = app.strip().lower()
+
+        def action() -> None:
+            if self._app is None:
+                raise RuntimeError("Application control is not connected")
+            apps = self._app.list_apps()
+            match = next(
+                (
+                    item
+                    for item in apps
+                    if str(item["id"]).lower() == wanted
+                    or str(item["title"]).lower() == wanted
+                ),
+                None,
+            )
+            if match is None:
+                raise RuntimeError(f"App not found: {app}")
+            self._app.launch(match)
+
+        return self.run(action)
+
+    def set_source(self, source: str) -> dict[str, Any]:
+        """Switch input source by id or label."""
+        wanted = source.strip().lower()
+
+        def action() -> None:
+            if self._source is None:
+                raise RuntimeError("Source control is not connected")
+            sources = self._source.list_sources()
+            match = next(
+                (
+                    item
+                    for item in sources
+                    if str(item["id"]).lower() == wanted
+                    or str(item["label"]).lower() == wanted
+                ),
+                None,
+            )
+            if match is None:
+                raise RuntimeError(f"Source not found: {source}")
+            self._source.set_source(match)
 
         return self.run(action)
 

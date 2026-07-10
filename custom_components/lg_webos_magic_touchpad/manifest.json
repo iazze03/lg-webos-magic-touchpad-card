@@ -8,5 +8,5 @@
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/iazze03/lg-webos-magic-touchpad-card/issues",
   "requirements": ["pywebostv>=0.8.9"],
-  "version": "0.2.2"
+  "version": "0.3.0"
 }

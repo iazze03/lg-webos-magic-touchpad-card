@@ -27,6 +27,77 @@ COMMANDS = {
     "volume_up",
     "volume_down",
     "mute",
+    "power_off",
+    "screen_off",
+    "screen_on",
+    "up",
+    "down",
+    "left",
+    "right",
+    "ok",
+    "menu",
+    "dash",
+    "info",
+    "cc",
+    "exit",
+    "red",
+    "green",
+    "yellow",
+    "blue",
+    "channel_up",
+    "channel_down",
+    "play",
+    "pause",
+    "stop",
+    "rewind",
+    "fastforward",
+    "num_0",
+    "num_1",
+    "num_2",
+    "num_3",
+    "num_4",
+    "num_5",
+    "num_6",
+    "num_7",
+    "num_8",
+    "num_9",
+    "channel",
+    "launch",
+    "source",
+}
+
+INPUT_COMMANDS = {
+    "up",
+    "down",
+    "left",
+    "right",
+    "ok",
+    "menu",
+    "dash",
+    "info",
+    "cc",
+    "exit",
+    "red",
+    "green",
+    "yellow",
+    "blue",
+    "channel_up",
+    "channel_down",
+    "play",
+    "pause",
+    "stop",
+    "rewind",
+    "fastforward",
+    "num_0",
+    "num_1",
+    "num_2",
+    "num_3",
+    "num_4",
+    "num_5",
+    "num_6",
+    "num_7",
+    "num_8",
+    "num_9",
 }
 
 
@@ -115,6 +186,20 @@ async def _async_command(
             return bridge.media_command("volume_down")
         if command == "mute":
             return bridge.media_command("mute", True)
+        if command in INPUT_COMMANDS:
+            return bridge.input_command(command)
+        if command == "power_off":
+            return bridge.system_command("power_off")
+        if command == "screen_off":
+            return bridge.system_command("screen_off")
+        if command == "screen_on":
+            return bridge.system_command("screen_on")
+        if command == "channel":
+            return bridge.digit_channel(str(data.get("number", "")))
+        if command == "launch":
+            return bridge.launch_app(str(data.get("app", "")))
+        if command == "source":
+            return bridge.set_source(str(data.get("source", "")))
         return {"ok": False, "error": "Unknown command"}
 
     try:

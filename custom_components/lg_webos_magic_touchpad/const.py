@@ -5,5 +5,7 @@ CONF_SECURE = "secure"
 DEFAULT_SECURE = False
 
 API_BASE = "/api/lg_webos_magic_touchpad"
-CARD_URL = "/lg_webos_magic_touchpad/lg-webos-magic-touchpad-card.js"
-CARD_FILENAME = "lg-webos-magic-touchpad-card.js"
+TOUCHPAD_CARD_URL = "/lg_webos_magic_touchpad/lg-webos-magic-touchpad-card.js"
+TOUCHPAD_CARD_FILENAME = "lg-webos-magic-touchpad-card.js"
+REMOTE_CARD_URL = "/lg_webos_magic_touchpad/lg-webos-magic-remote-card.js"
+REMOTE_CARD_FILENAME = "lg-webos-magic-remote-card.js"

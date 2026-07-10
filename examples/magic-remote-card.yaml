@@ -1,0 +1,30 @@
+type: custom:lg-webos-magic-remote-card
+title: TV Salone
+entity: media_player.tv_salone
+mode: keypad
+scale: 1
+show_sources: true
+show_color_buttons: true
+show_media_buttons: false
+sources:
+  - name: Netflix
+    label: NETFLIX
+    type: app
+  - name: Prime Video
+    label: prime video
+    type: app
+  - name: YouTube
+    label: YouTube
+    type: app
+  - name: HDMI 1
+    label: HDMI 1
+    type: source
+channels:
+  - name: Rai 1
+    label: Rai 1
+    type: channel
+    value: "1"
+  - name: Rai 2
+    label: Rai 2
+    type: channel
+    value: "2"
