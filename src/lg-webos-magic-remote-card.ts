@@ -125,9 +125,9 @@ class LgWebosMagicRemoteCard extends LitElement {
 
     .remote {
       --remote-scale: 1;
-      width: min(100%, calc(224px * var(--remote-scale)));
+      width: min(100%, calc(236px * var(--remote-scale)));
       max-width: 320px;
-      border-radius: 34px;
+      border-radius: 36px;
       padding: calc(14px * var(--remote-scale));
       background:
         linear-gradient(90deg, rgba(255, 255, 255, 0.08), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.08)),
@@ -139,6 +139,7 @@ class LgWebosMagicRemoteCard extends LitElement {
         0 18px 40px rgba(0, 0, 0, 0.28);
       box-sizing: border-box;
       color: #f5f5f5;
+      margin-inline: auto;
     }
 
     .top {
@@ -163,8 +164,10 @@ class LgWebosMagicRemoteCard extends LitElement {
     }
 
     .two-side {
-      grid-template-columns: 46px 1fr 46px;
+      display: grid;
+      grid-template-columns: 48px 1fr 48px;
       align-items: center;
+      justify-items: center;
       margin-top: 12px;
     }
 
@@ -188,6 +191,10 @@ class LgWebosMagicRemoteCard extends LitElement {
       cursor: pointer;
       user-select: none;
       box-sizing: border-box;
+      overflow: hidden;
+      text-align: center;
+      line-height: 1;
+      white-space: normal;
     }
 
     button:active {
@@ -208,14 +215,15 @@ class LgWebosMagicRemoteCard extends LitElement {
     }
 
     .small {
-      width: 34px;
-      height: 34px;
+      width: 38px;
+      height: 38px;
       border-radius: 999px;
-      font-size: 12px;
+      font-size: 11px;
     }
 
     .pill {
-      height: 86px;
+      width: 42px;
+      height: 84px;
       border-radius: 18px;
       grid-template-rows: 1fr 1px 1fr;
       overflow: hidden;
@@ -275,24 +283,25 @@ class LgWebosMagicRemoteCard extends LitElement {
 
     .guide-row {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
+      grid-template-columns: repeat(3, 42px);
+      justify-content: space-between;
       margin-top: 8px;
     }
 
     .center-actions {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-top: 10px;
+      grid-template-columns: repeat(3, 42px);
+      justify-content: space-between;
+      margin-top: 12px;
       align-items: center;
     }
 
     .wheel {
       position: relative;
-      width: 134px;
-      height: 134px;
+      width: 136px;
+      height: 136px;
       justify-self: center;
+      margin: 12px auto 0;
       border-radius: 999px;
       background:
         conic-gradient(from 20deg, #070707, #242424, #080808, #2e2e2e, #070707);
@@ -352,9 +361,9 @@ class LgWebosMagicRemoteCard extends LitElement {
 
     .post-wheel {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 48px;
-      margin-top: 8px;
+      grid-template-columns: repeat(2, 42px);
+      justify-content: space-between;
+      margin-top: 12px;
     }
 
     .color-row {
@@ -396,14 +405,16 @@ class LgWebosMagicRemoteCard extends LitElement {
     }
 
     .source {
-      height: 40px;
+      height: 42px;
       border-radius: 0;
-      font-size: 11px;
+      font-size: clamp(9px, 3.3vw, 12px);
       letter-spacing: 0;
       background: linear-gradient(180deg, #222, #111);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-      overflow-wrap: anywhere;
-      padding: 0 4px;
+      overflow-wrap: normal;
+      word-break: keep-all;
+      padding: 0 5px;
+      line-height: 1.08;
     }
 
     .source.netflix {
