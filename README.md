@@ -88,6 +88,8 @@ Con una sola TV configurata non serve `entry_id`.
 
 La seconda card inclusa nell'integrazione riproduce un telecomando LG Magic Remote completo:
 
+![LG Magic Remote reference](docs/images/lg-magic-remotes.png)
+
 ```yaml
 type: custom:lg-webos-magic-remote-card
 title: TV Salone
@@ -98,6 +100,8 @@ show_sources: true
 show_color_buttons: true
 show_media_buttons: false
 ```
+
+`mode` imposta solo la vista iniziale. Il pulsante centrale sotto tastierino/trackpad alterna al volo tra tastierino numerico e touchpad, come sul telecomando LG dell'immagine.
 
 Modalità con touchpad superiore, simile al secondo telecomando dell'immagine:
 

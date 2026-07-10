@@ -3,6 +3,7 @@ title: TV Salone
 entity: media_player.tv_salone
 mode: keypad
 scale: 1
+# Il tasto centrale sotto tastierino/trackpad alterna keypad e touchpad.
 show_sources: true
 show_color_buttons: true
 show_media_buttons: false

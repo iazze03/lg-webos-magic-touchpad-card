@@ -560,6 +560,7 @@ var DEFAULT_SOURCES = [
 var LgWebosMagicRemoteCard = class extends i4 {
   constructor() {
     super(...arguments);
+    this._mode = "keypad";
     this._health = "checking";
     this._error = "";
     this._pendingMove = { dx: 0, dy: 0 };
@@ -575,6 +576,7 @@ var LgWebosMagicRemoteCard = class extends i4 {
       show_media_buttons: false,
       ...config
     };
+    this._mode = this._config.mode ?? "keypad";
     this._checkHealth();
   }
   connectedCallback() {
@@ -612,12 +614,12 @@ var LgWebosMagicRemoteCard = class extends i4 {
               <ha-icon class="mic" icon="mdi:microphone"></ha-icon>
             </div>
 
-            ${this._config.mode === "touchpad" ? this._renderTouchPanel() : this._renderKeypad()}
+            ${this._mode === "touchpad" ? this._renderTouchPanel() : this._renderKeypad()}
 
             <div class="guide-row">
               <button class="small" title="Guide" @click=${() => this._command("info")}>GUIDE</button>
-              <button class="small" title="Menu" @click=${() => this._command("menu")}>
-                <ha-icon icon="mdi:keyboard"></ha-icon>
+              <button class="small" title="Toggle keypad/touchpad" @click=${this._toggleMode}>
+                <ha-icon icon=${this._mode === "touchpad" ? "mdi:dialpad" : "mdi:gesture-tap"}></ha-icon>
               </button>
               <button class="small" title="More" @click=${() => this._command("dash")}>•••</button>
             </div>
@@ -713,6 +715,13 @@ var LgWebosMagicRemoteCard = class extends i4 {
         </button>
       </div>
     `;
+  }
+  _toggleMode() {
+    this._mode = this._mode === "touchpad" ? "keypad" : "touchpad";
+    this._lastPointer = void 0;
+    this._tapStart = void 0;
+    this._pendingMove = { dx: 0, dy: 0 };
+    this._haptic();
   }
   _renderColorButtons() {
     return b2`
@@ -883,6 +892,7 @@ var LgWebosMagicRemoteCard = class extends i4 {
 LgWebosMagicRemoteCard.properties = {
   hass: { attribute: false },
   _config: { state: true },
+  _mode: { state: true },
   _health: { state: true },
   _error: { state: true }
 };

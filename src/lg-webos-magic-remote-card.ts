@@ -40,6 +40,7 @@ class LgWebosMagicRemoteCard extends LitElement {
   static properties = {
     hass: { attribute: false },
     _config: { state: true },
+    _mode: { state: true },
     _health: { state: true },
     _error: { state: true },
   };
@@ -49,6 +50,7 @@ class LgWebosMagicRemoteCard extends LitElement {
   };
 
   private _config!: RemoteCardConfig;
+  private _mode: RemoteMode = "keypad";
   private _health: HealthState = "checking";
   private _error = "";
   private _pollTimer?: number;
@@ -447,6 +449,7 @@ class LgWebosMagicRemoteCard extends LitElement {
       show_media_buttons: false,
       ...config,
     };
+    this._mode = this._config.mode ?? "keypad";
     this._checkHealth();
   }
 
@@ -487,12 +490,12 @@ class LgWebosMagicRemoteCard extends LitElement {
               <ha-icon class="mic" icon="mdi:microphone"></ha-icon>
             </div>
 
-            ${this._config.mode === "touchpad" ? this._renderTouchPanel() : this._renderKeypad()}
+            ${this._mode === "touchpad" ? this._renderTouchPanel() : this._renderKeypad()}
 
             <div class="guide-row">
               <button class="small" title="Guide" @click=${() => this._command("info")}>GUIDE</button>
-              <button class="small" title="Menu" @click=${() => this._command("menu")}>
-                <ha-icon icon="mdi:keyboard"></ha-icon>
+              <button class="small" title="Toggle keypad/touchpad" @click=${this._toggleMode}>
+                <ha-icon icon=${this._mode === "touchpad" ? "mdi:dialpad" : "mdi:gesture-tap"}></ha-icon>
               </button>
               <button class="small" title="More" @click=${() => this._command("dash")}>•••</button>
             </div>
@@ -591,6 +594,14 @@ class LgWebosMagicRemoteCard extends LitElement {
         </button>
       </div>
     `;
+  }
+
+  private _toggleMode() {
+    this._mode = this._mode === "touchpad" ? "keypad" : "touchpad";
+    this._lastPointer = undefined;
+    this._tapStart = undefined;
+    this._pendingMove = { dx: 0, dy: 0 };
+    this._haptic();
   }
 
   private _renderColorButtons() {
